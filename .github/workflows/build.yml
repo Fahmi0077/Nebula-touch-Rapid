@@ -61,4 +61,9 @@ jobs:
 
       - name: Build APK
         run: gradle -p "$PROJECT_DIR" --no-daemon :app:assembleDebug
-
+- name: Upload Debug APK
+  uses: actions/upload-artifact@v4
+  with:
+    name: nebula-debug-apk
+    path: "**/build/outputs/apk/debug/*.apk"
+    
