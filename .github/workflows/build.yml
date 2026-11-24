@@ -41,10 +41,24 @@ jobs:
         with:
           gradle-version: '8.13'
 
-      - name: Build APK
-        run: gradle -p project --no-daemon :app:assembleDebug
+      
+      - name: Locate Android project
+        run: |
+          echo "Checking extracted files..."
+          find project -maxdepth 5 -type f | head -100
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Nebula-Rapid-Touch-APK
-          path: project/app/build/outputs/apk/debug/app-debug.apk
+          PROJECT_DIR=$(find project -type f \
+            \( -name settings.gradle -o -name settings.gradle.kts \) \
+            -printf '%h\n' | head -n 1)
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ERROR: Gradle settings file not found."
+            exit 1
+          fi
+
+          echo "Found project at: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+      - name: Build APK
+        run: gradle -p "$PROJECT_DIR" --no-daemon :app:assembleDebug
+
